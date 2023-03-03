@@ -1,0 +1,49 @@
+import { useEffect, useState } from "react";
+
+function App() {
+const [chat, setChat] = useState([
+{ role: "system", content: "Some instruction" },
+{ role: "user", content: "Hello!" },
+{ role: "assistant", content: "Hi!" },
+{ role: "user", content: "How are you?" },
+{ role: "assistant", content: "I'm fine, thanks!" },
+]);
+
+const messages = [
+//system message sets the behavior of the chatbot
+{ role: "system", content: "Some instruction" },
+{ role: "user", content: "Hello!" },
+{ role: "assistant", content: "Hi!" },
+{ role: "user", content: "How are you?" },
+{ role: "assistant", content: "I'm fine, thanks!" },
+];
+
+const chatCompletion = {
+id: "chatcmpl-6p9XYPYSTTRi0xEviKjjilqrWU2Ve",
+object: "chat.completion",
+created: 1677649420,
+model: "gpt-3.5-turbo",
+// billed on total tokens
+usage: { prompt_tokens: 56, completion_tokens: 31, total_tokens: 87 },
+choices: [
+{
+message: {
+role: "assistant",
+content:
+"The 2020 World Series was played in Arlington, Texas at the Globe Life Field, which was the new home stadium for the Texas Rangers.",
+},
+finish_reason: "stop",
+index: 0,
+},
+],
+};
+
+useEffect(() => {
+fetch("http://localhost:3000/chat")
+.then((response) => response.json())
+.then((data) => setChat(data.choices[0].message.content));
+}, [chat]);
+
+// return ({chat.map((message) => message.content)});
+}
+export default App;
