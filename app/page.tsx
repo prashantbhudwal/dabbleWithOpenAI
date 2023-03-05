@@ -1,29 +1,36 @@
 "use client";
 import styles from "./page.module.css";
-import { useEffect, useState } from "react";
-import { OpenAIApi, Configuration } from "openai";
+import { useState } from "react";
+import useSWR from "swr";
 import * as dotenv from "dotenv";
 
 export default function Home() {
-  const [test, setTest] = useState("test");
-  const configuration = new Configuration({
-    apiKey: process.env.OPENAI_API_KEY,
-  });
+  const [fetchNow, setFetchNow] = useState(false);
 
-  console.log(process.env.OPENAI_API_KEY);
+  const fetcher = function () {
+    return fetch("/api/openAPI")
+      .then((res) => res.json())
+      .then((data) => data.response.content);
+  };
 
-  const openai = new OpenAIApi(configuration);
+  const { data, error, isLoading } = useSWR(
+    fetchNow ? "/api/openAPI" : null,
+    fetcher
+  );
 
-  useEffect(() => {
-    async function fetchCompletion() {
-      const completion = await openai.createChatCompletion({
-        model: "gpt-3.5-turbo",
-        messages: [{ role: "user", content: "Hello world" }],
-      });
-      console.log(completion.data.choices[0].message);
-    }
-    fetchCompletion();
-  }, [test]);
+  const handleClick = () => {
+    setFetchNow(true);
+  };
 
-  return <div></div>;
+  const loadingJSX = <h1>Loading</h1>;
+  const errorJSX = <h1>Error</h1>;
+
+  if (error) return errorJSX;
+  if (isLoading) return loadingJSX;
+  return (
+    <div>
+      <button onClick={handleClick}>Fetch</button>
+      <h1>{data}</h1>
+    </div>
+  );
 }
