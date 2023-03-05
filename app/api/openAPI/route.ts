@@ -11,7 +11,13 @@ export async function GET(request: Request) {
   async function fetchCompletion() {
     const completion = await openai.createChatCompletion({
       model: "gpt-3.5-turbo",
-      messages: [{ role: "user", content: "Hello world" }],
+      messages: [
+        {
+          role: "user",
+          content:
+            "Hey GPT, I have just built an API to chat with you. What do you think?",
+        },
+      ],
     });
     return completion.data.choices[0].message;
   }
