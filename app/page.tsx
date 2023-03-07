@@ -39,21 +39,24 @@ export default function Home() {
   if (error) return errorJSX;
   if (isLoading) return loadingJSX;
   return (
-    <div>
+    <div className="flex flex-col gap-2 items-center m-4">
       <input
         type="text"
         onChange={handleChange}
         value={input}
         className="border-slate-700 rounded-md bg-slate-300 text-black p-3  w-96"
       />
-
       <button
         onClick={() => setFetchNow(!fetchNow)}
         className="bg-teal-400 w-20 rounded-sm p-2"
       >
-        Send
+        Example
       </button>
-      <h2>{data}</h2>
+      {data && (
+        <h2 className="border-slate-700 rounded-md bg-slate-300 text-black p-3  w-96">
+          {data}
+        </h2>
+      )}
     </div>
   );
 }
