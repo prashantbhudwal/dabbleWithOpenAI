@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
       messages: [
         {
           role: "user",
-          content: prompt,
+          content: `I am a student in grade 6, give me an example of: ${prompt}`,
         },
       ],
     });
