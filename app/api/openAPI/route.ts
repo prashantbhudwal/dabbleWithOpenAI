@@ -34,7 +34,13 @@ export async function POST(request: NextRequest) {
   async function fetchCompletion() {
     const completion = await openai.createChatCompletion({
       model: "gpt-3.5-turbo",
+      temperature: 0.7,
+      max_tokens: 300,
       messages: [
+        {
+          role: "system",
+          content: `You are a knowledgeable teacher.`,
+        },
         {
           role: "user",
           content: `I am a student in grade 6, give me an example of: ${prompt}`,
