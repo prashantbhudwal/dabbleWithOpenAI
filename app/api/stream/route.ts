@@ -22,11 +22,11 @@ export async function GET() {
       {
         model: "gpt-3.5-turbo",
         stream: true,
+        max_tokens: 1000,
         messages: [
           {
             role: "user",
-            content:
-              "Hey GPT, I have just built an API to chat with you. What do you think?",
+            content: "Hey GPT, write a long essay on Life! In markdown",
           },
         ],
       },
@@ -50,9 +50,9 @@ export async function GET() {
           const parsed = JSON.parse(message);
           console.log(parsed.choices[0]);
           console.log(parsed.choices[0].delta);
-        //   if (parsed.choices[0].delta.content) {
-        //     console.log(parsed.choices[0].delta?.content);
-        //   }
+          //   if (parsed.choices[0].delta.content) {
+          //     console.log(parsed.choices[0].delta?.content);
+          //   }
           await writer.write(
             encoder.encode(`${parsed.choices[0].delta.content}`)
           );
