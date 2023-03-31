@@ -1,49 +1,60 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import useSWR from "swr";
+
+type PromptBody = {
+  prompt: string;
+};
+
+const fetcher = async (url: string, body: PromptBody): Promise<string[]> => {
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+
+  if (!response.ok) {
+    throw new Error("An error occurred while fetching the data");
+  }
+  // @ts-ignore
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let chunks: string[] = [];
+
+  while (true) {
+    const { done, value } = await reader.read();
+
+    if (done) {
+      break;
+    }
+
+    chunks.push(decoder.decode(value));
+  }
+
+  return chunks;
+};
 
 export default function ChatComponent() {
-  const [messages, setMessages] = useState<string[]>([]);
+  const body: PromptBody = {
+    prompt: "Can you write a short piece on JayZ",
+  };
 
-  useEffect(() => {
-    const body = {
-      prompt: "Can you write an essay on JayZ",
-    };
-    const readStream = async () => {
-      try {
-        const response = await fetch(`/api/streamPost`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(body),
-        });
+  const { data: messages, error } = useSWR<string[], Error>(
+    ["/api/streamPost", body],
+    fetcher,
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+    }
+  );
 
-        if (!response.body) {
-          console.error("Fetch response does not have a readable stream");
-          return;
-        }
-
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder();
-
-        while (true) {
-          const { done, value } = await reader.read();
-
-          if (done) {
-            console.log("Stream has completed");
-            break;
-          }
-
-          const chunk = decoder.decode(value);
-          setMessages((prevMessages) => [...prevMessages, chunk]);
-        }
-      } catch (error) {
-        console.error("Error reading stream:", error);
-      }
-    };
-
-    readStream();
-  }, []);
+  if (error) {
+    return <div>Error: {error.message}</div>;
+  }
+  if (!messages) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div>
