@@ -18,14 +18,14 @@ export async function POST(request: NextRequest) {
   const writer = responseStream.writable.getWriter();
   const encoder = new TextEncoder();
 
-  writer.write(encoder.encode("streaming")); // Send "streaming" message to the client
+  // writer.write(encoder.encode("streaming")); // Send "streaming" message to the client
 
   try {
     const openaiRes = await openai.createChatCompletion(
       {
         model: "gpt-3.5-turbo",
         stream: true,
-        max_tokens: 1000,
+        max_tokens: 500,
         messages: [
           {
             role: "user",
@@ -53,12 +53,11 @@ export async function POST(request: NextRequest) {
           const parsed = JSON.parse(message);
           console.log(parsed.choices[0]);
           console.log(parsed.choices[0].delta);
-          //   if (parsed.choices[0].delta.content) {
-          //     console.log(parsed.choices[0].delta?.content);
-          //   }
-          await writer.write(
-            encoder.encode(`${parsed.choices[0].delta.content}`)
-          );
+          const filteredContent = parsed.choices[0].delta.content
+            ? parsed.choices[0].delta?.content
+            : "";
+
+          await writer.write(encoder.encode(`${filteredContent}`));
         } catch (error) {
           console.error("Could not JSON parse stream message", message, error);
         }
